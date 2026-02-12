@@ -26,9 +26,11 @@ public class Producto {
     @Column(nullable = false, length = 100)
     private String nombre;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "tipo_corte_id")
-    private TipoCorte tipoCorte;
+    // NOTA: TipoCorte está en la BD pero no se usa en el MVP
+    // Descomentar cuando se necesite en futuras versiones
+    // @ManyToOne(fetch = FetchType.EAGER)
+    // @JoinColumn(name = "tipo_corte_id")
+    // private TipoCorte tipoCorte;
 
     @Column(name = "consumo_base_metros", precision = 10, scale = 2, nullable = false)
     private BigDecimal consumoBaseMetros;

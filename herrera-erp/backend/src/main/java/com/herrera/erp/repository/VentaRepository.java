@@ -12,35 +12,38 @@ import java.util.Optional;
 
 /**
  * Repositorio de Ventas
- * Ubicación:
- * backend/src/main/java/com/herrera/erp/repository/VentaRepository.java
  */
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, Long> {
 
-    Optional<Venta> findByFolioVenta(String folioVenta);
+        Optional<Venta> findByFolioVenta(String folioVenta);
 
-    List<Venta> findByUbicacion(Venta.UbicacionVenta ubicacion);
+        List<Venta> findByUbicacion(Venta.UbicacionVenta ubicacion);
 
-    List<Venta> findByUsuarioVendedorId(Long usuarioId);
+        List<Venta> findByUsuarioVendedorId(Long usuarioId);
 
-    // Ventas del día
-    @Query("SELECT v FROM Venta v WHERE DATE(v.fechaVenta) = CURRENT_DATE ORDER BY v.fechaVenta DESC")
-    List<Venta> findVentasDelDia();
+        // Ventas del día
+        @Query("SELECT v FROM Venta v WHERE CAST(v.fechaVenta AS date) = CURRENT_DATE ORDER BY v.fechaVenta DESC")
+        List<Venta> findVentasDelDia();
 
-    // Ventas en rango de fechas
-    List<Venta> findByFechaVentaBetweenOrderByFechaVentaDesc(
-            LocalDateTime inicio,
-            LocalDateTime fin);
+        // Ventas en rango de fechas
+        List<Venta> findByFechaVentaBetweenOrderByFechaVentaDesc(
+                        LocalDateTime inicio,
+                        LocalDateTime fin);
 
-    // Total de ventas del día
-    @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE DATE(v.fechaVenta) = CURRENT_DATE")
-    BigDecimal calcularTotalVentasDelDia();
+        // Alias para el método anterior
+        default List<Venta> findVentasPorRango(LocalDateTime inicio, LocalDateTime fin) {
+                return findByFechaVentaBetweenOrderByFechaVentaDesc(inicio, fin);
+        }
 
-    // Total de ventas por ubicación
-    @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.ubicacion = :ubicacion " +
-            "AND DATE(v.fechaVenta) = CURRENT_DATE")
-    BigDecimal calcularTotalVentasDelDiaPorUbicacion(Venta.UbicacionVenta ubicacion);
+        // Total de ventas del día
+        @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE CAST(v.fechaVenta AS date) = CURRENT_DATE")
+        BigDecimal calcularTotalVentasDelDia();
 
-    boolean existsByFolioVenta(String folioVenta);
+        // Total de ventas por ubicación
+        @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.ubicacion = :ubicacion " +
+                        "AND CAST(v.fechaVenta AS date) = CURRENT_DATE")
+        BigDecimal calcularTotalVentasDelDiaPorUbicacion(Venta.UbicacionVenta ubicacion);
+
+        boolean existsByFolioVenta(String folioVenta);
 }

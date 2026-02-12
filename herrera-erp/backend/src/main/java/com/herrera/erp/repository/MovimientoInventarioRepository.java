@@ -33,6 +33,6 @@ public interface MovimientoInventarioRepository extends JpaRepository<Movimiento
             LocalDateTime fin);
 
     // Movimientos del día
-    @Query("SELECT m FROM MovimientoInventario m WHERE DATE(m.fecha) = CURRENT_DATE ORDER BY m.fecha DESC")
+    @Query("SELECT m FROM MovimientoInventario m WHERE CAST(m.fecha AS date) = CURRENT_DATE ORDER BY m.fecha DESC")
     List<MovimientoInventario> findMovimientosDelDia();
 }

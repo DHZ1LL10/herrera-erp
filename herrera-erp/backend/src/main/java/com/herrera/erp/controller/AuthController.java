@@ -1,18 +1,20 @@
 package com.herrera.erp.controller;
 
+import com.herrera.erp.dto.LoginRequest;
+import com.herrera.erp.dto.LoginResponse;
+import com.herrera.erp.model.Usuario;
 import com.herrera.erp.service.AuthService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Controller de Autenticación
- * Ubicación:
- * backend/src/main/java/com/herrera/erp/controller/AuthController.java
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -30,11 +32,23 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             String token = authService.login(request.getUsername(), request.getPassword());
+            Usuario usuario = authService.getUserFromToken(token);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
-            response.put("type", "Bearer");
-            response.put("message", "Login exitoso");
+            // Obtener nombres de permisos
+            List<String> permisos = usuario.getRol().getPermisos().stream()
+                    .map(p -> p.getModulo())
+                    .collect(Collectors.toList());
+
+            LoginResponse response = LoginResponse.builder()
+                    .token(token)
+                    .type("Bearer")
+                    .message("Login exitoso")
+                    .usuarioId(usuario.getId())
+                    .username(usuario.getUsername())
+                    .nombreCompleto(usuario.getNombreCompleto())
+                    .rol(usuario.getRol().getNombre())
+                    .permisos(permisos)
+                    .build();
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -69,11 +83,5 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Logout exitoso");
         return ResponseEntity.ok(response);
-    }
-
-    @Data
-    static class LoginRequest {
-        private String username;
-        private String password;
     }
 }

@@ -3,8 +3,8 @@ package com.herrera.erp.service;
 import com.herrera.erp.model.Usuario;
 import com.herrera.erp.repository.UsuarioRepository;
 import com.herrera.erp.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
  * Ubicación: backend/src/main/java/com/herrera/erp/service/AuthService.java
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class AuthService implements UserDetailsService {
 
@@ -30,6 +29,18 @@ public class AuthService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+
+    // Constructor manual para que @Lazy funcione correctamente
+    public AuthService(
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil,
+            @Lazy AuthenticationManager authenticationManager) {
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
+    }
 
     /**
      * Login de usuario - Genera JWT

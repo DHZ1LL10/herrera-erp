@@ -1,0 +1,18 @@
+# Ignorar directorio target (builds de Maven)
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Ignorar archivos IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Ignorar logs
+*.log
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db

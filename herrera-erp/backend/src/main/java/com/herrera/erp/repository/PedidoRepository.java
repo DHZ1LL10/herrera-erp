@@ -11,53 +11,56 @@ import java.util.Optional;
 
 /**
  * Repositorio de Pedidos
- * Ubicación:
- * backend/src/main/java/com/herrera/erp/repository/PedidoRepository.java
  */
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    Optional<Pedido> findByFolio(String folio);
+        Optional<Pedido> findByFolio(String folio);
 
-    List<Pedido> findByEstado(Pedido.Estado estado);
+        List<Pedido> findByEstado(Pedido.Estado estado);
 
-    List<Pedido> findByPrioridad(Pedido.Prioridad prioridad);
+        List<Pedido> findByPrioridad(Pedido.Prioridad prioridad);
 
-    // Pedidos activos (no entregados ni cancelados)
-    @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
-            "ORDER BY p.fechaEntrega ASC")
-    List<Pedido> findPedidosActivos();
+        // Pedidos activos (no entregados ni cancelados)
+        @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
+                        "ORDER BY p.fechaEntrega ASC")
+        List<Pedido> findPedidosActivos();
 
-    // Pedidos retrasados
-    @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
-            "AND p.fechaEntrega < CURRENT_DATE ORDER BY p.fechaEntrega ASC")
-    List<Pedido> findPedidosRetrasados();
+        // Pedidos retrasados
+        @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
+                        "AND p.fechaEntrega < CURRENT_DATE ORDER BY p.fechaEntrega ASC")
+        List<Pedido> findPedidosRetrasados();
 
-    // Pedidos por entregar hoy
-    @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
-            "AND p.fechaEntrega = CURRENT_DATE")
-    List<Pedido> findPedidosEntregarHoy();
+        // Pedidos por entregar hoy
+        @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
+                        "AND p.fechaEntrega = CURRENT_DATE")
+        List<Pedido> findPedidosEntregarHoy();
 
-    // Pedidos por entregar en próximos N días
-    @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
-            "AND p.fechaEntrega BETWEEN CURRENT_DATE AND :fechaLimite " +
-            "ORDER BY p.fechaEntrega ASC")
-    List<Pedido> findPedidosProximosAEntregar(LocalDate fechaLimite);
+        // Alias para compatibilidad
+        default List<Pedido> findPedidosPorEntregarHoy() {
+                return findPedidosEntregarHoy();
+        }
 
-    // Pedidos por cliente
-    List<Pedido> findByClienteNombreContainingIgnoreCase(String nombreCliente);
+        // Pedidos por entregar en próximos N días
+        @Query("SELECT p FROM Pedido p WHERE p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
+                        "AND p.fechaEntrega BETWEEN CURRENT_DATE AND :fechaLimite " +
+                        "ORDER BY p.fechaEntrega ASC")
+        List<Pedido> findPedidosProximosAEntregar(LocalDate fechaLimite);
 
-    // Pedidos por ubicación
-    List<Pedido> findByUbicacionOrigen(Pedido.UbicacionOrigen ubicacion);
+        // Pedidos por cliente
+        List<Pedido> findByClienteNombreContainingIgnoreCase(String nombreCliente);
 
-    // Pedidos preferenciales pendientes
-    @Query("SELECT p FROM Pedido p WHERE p.prioridad = 'PREFERENCIAL' " +
-            "AND p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
-            "ORDER BY p.fechaEntrega ASC")
-    List<Pedido> findPedidosPreferencialesPendientes();
+        // Pedidos por ubicación
+        List<Pedido> findByUbicacionOrigen(Pedido.UbicacionOrigen ubicacion);
 
-    boolean existsByFolio(String folio);
+        // Pedidos preferenciales pendientes
+        @Query("SELECT p FROM Pedido p WHERE p.prioridad = 'PREFERENCIAL' " +
+                        "AND p.estado NOT IN ('ENTREGADO', 'CANCELADO') " +
+                        "ORDER BY p.fechaEntrega ASC")
+        List<Pedido> findPedidosPreferencialesPendientes();
 
-    // Contar pedidos por estado
-    long countByEstado(Pedido.Estado estado);
+        boolean existsByFolio(String folio);
+
+        // Contar pedidos por estado
+        long countByEstado(Pedido.Estado estado);
 }

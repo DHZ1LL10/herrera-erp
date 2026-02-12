@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # BASE DE DATOS POSTGRESQL
+  # ==========================================
+  database:
+    image: postgres:15-alpine
+    container_name: herrera-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: herrera_erp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - herrera-network
+
+  # ==========================================
+  # BACKEND SPRING BOOT
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: herrera-backend
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      # Base de datos
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/herrera_erp
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      # JPA
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_SHOW_SQL: "true"
+
+      # JWT
+      JWT_SECRET: HerreraERP2026SecretKeyMuySeguraParaJWT1234567890
+      JWT_EXPIRATION: 86400000
+
+      # Cloudinary (opcional - dejar vacío si no se usa)
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+
+      # Perfil
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    networks:
+      - herrera-network
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ==========================================
+  # FRONTEND REACT + VITE + NGINX
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: herrera-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - herrera-network
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ==========================================
+# VOLUMENES PERSISTENTES
+# ==========================================
+volumes:
+  postgres_data:
+    driver: local
+
+# ==========================================
+# RED INTERNA
+# ==========================================
+networks:
+  herrera-network:
+    driver: bridge

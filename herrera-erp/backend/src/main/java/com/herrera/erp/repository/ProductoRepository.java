@@ -16,7 +16,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     List<Producto> findByActivoTrue();
 
-    List<Producto> findByTipoCorteId(Long tipoCorteId);
+    // NOTA: Comentado porque tipoCorte no se usa en MVP
+    // List<Producto> findByTipoCorteId(Long tipoCorteId);
 
     List<Producto> findByNombreContainingIgnoreCaseAndActivoTrue(String nombre);
 
