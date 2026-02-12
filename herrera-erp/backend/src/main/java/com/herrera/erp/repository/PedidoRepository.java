@@ -3,6 +3,7 @@ package com.herrera.erp.repository;
 import com.herrera.erp.model.Pedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -63,4 +64,11 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
         // Contar pedidos por estado
         long countByEstado(Pedido.Estado estado);
+
+        // Query para costos - obtener pedidos por rango de fechas
+        List<Pedido> findByFechaPedidoBetween(LocalDate inicio, LocalDate fin);
+
+        // Query para stats usando estado
+        @Query("SELECT p FROM Pedido p WHERE p.estado IN :estados ORDER BY p.fechaEntrega ASC")
+        List<Pedido> findByEstadoIn(@Param("estados") List<Pedido.Estado> estados);
 }

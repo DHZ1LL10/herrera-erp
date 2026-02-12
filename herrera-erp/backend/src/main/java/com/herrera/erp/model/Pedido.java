@@ -103,6 +103,9 @@ public class Pedido {
     @Builder.Default
     private List<PedidoImagen> imagenes = new ArrayList<>();
 
+    @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private CostoPedido costo;
+
     // ============================================
     // ENUMS
     // ============================================
