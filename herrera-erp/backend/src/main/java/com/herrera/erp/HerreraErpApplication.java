@@ -29,13 +29,12 @@ public class HerreraErpApplication {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-            @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins(
-                                "http://localhost:5173", // Vite
-                                "http://localhost:3000", // Create React App
-                                "http://192.168.1.*" // Red local
+                        .allowedOriginPatterns(
+                                "http://localhost:*", // Desarrollo local (cualquier puerto)
+                                "http://192.168.*.*:*", // Red local
+                                "http://127.0.0.1:*" // Loopback
                 )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

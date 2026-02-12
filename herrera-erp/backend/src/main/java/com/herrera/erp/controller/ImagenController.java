@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/imagenes")
-@CrossOrigin(origins = "*")
+
 @RequiredArgsConstructor
 @Slf4j
 public class ImagenController {

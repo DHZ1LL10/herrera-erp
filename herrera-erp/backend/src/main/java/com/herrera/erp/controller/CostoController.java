@@ -29,7 +29,7 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')") // ← CRÍTICO: Solo ADMIN puede acceder
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
+
 public class CostoController {
 
     private final CostoService costoService;
